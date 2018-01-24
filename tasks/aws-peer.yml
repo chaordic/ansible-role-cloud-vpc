@@ -1,0 +1,18 @@
+---
+- name: AWS | PEER create
+  ec2_vpc_peer:
+    region: "{{ item_vpc.region }}"
+    vpc_id: "{{ vpc_id }}"
+    peer_owner_id: "{{ item_peer.peer_owner_id |d(omit) }}"
+    peer_vpc_id: "{{ item_peer.peer_vpc_id }}"
+    state: present
+    tags: "{{ item_peer.tags }}"
+  register: ret_vpc_peer
+
+- debug: var=ret_vpc_peer
+
+- set_fact:
+    peer_new: "{{ {'name': item_peer.tags.Name, 'id': ret_vpc_peer.peering_id}}}"
+
+- set_fact:
+    vpc_peers: "{{ vpc_peers + [peer_new] }}"

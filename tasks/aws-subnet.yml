@@ -17,13 +17,7 @@
   when: item_subnet.public_ip is defined and item_subnet.public_ip
 
 - set_fact:
-    subnets_pub: "{{ subnets_pub + [ret_subnet.subnet.id] }}"
-  when: item_subnet.route == 'rt_public'
+    item_subnet: "{{ item_subnet |combine({'subnet_id':ret_subnet.subnet.id}) }}"
 
 - set_fact:
-    subnets_priv: "{{ subnets_priv + [ret_subnet.subnet.id] }}"
-  when: item_subnet.route == 'rt_private'
-
-- set_fact:
-    subnets_natgw: "{{ subnets_natgw + [ret_subnet.subnet.id] }}"
-  when: item_subnet.route == 'rt_natgw'
+    vpc_subnets: "{{ vpc_subnets + [item_subnet] }}"
