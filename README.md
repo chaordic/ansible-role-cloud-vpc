@@ -195,6 +195,13 @@ Example Playbook
            - { role: cloud-iam.mtulio }
 
 
+
+Changelog
+---------
+
+* Support VPC Peering route in route table
+
+
 License
 -------
 
