@@ -16,6 +16,13 @@
     state: present
   when: item_subnet.public_ip is defined and item_subnet.public_ip
 
+- name: AWS | SUBNET disable auto assign public IP
+  ec2_vpc_subnet_auto_assign_public_ip:
+    region: "{{ item_vpc.region }}"
+    subnet: "{{ ret_subnet.subnet.id }}"
+    state: absent
+  when: (item_subnet.public_ip is defined) and not item_subnet.public_ip
+
 - set_fact:
     item_subnet: "{{ item_subnet |combine({'subnet_id':ret_subnet.subnet.id}) }}"
 

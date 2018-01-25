@@ -199,6 +199,7 @@ Example Playbook
 Changelog
 ---------
 
+* Support NATGW discovery ID and attach it to the private RTb
 * Support VPC Peering route in route table
 
 
