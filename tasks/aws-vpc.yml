@@ -46,6 +46,10 @@
   include: aws-natgw.yml
   when: item_vpc.nat_gw
 
+- name: AWS | VPN
+  include: aws-vpn.yml
+  when: item_vpc.vpn_connections
+
 - name: AWS | VPC Routing
   include: aws-routing.yml
 
