@@ -3,7 +3,7 @@
 # a custom ansible module for updating the ec2 subnet "Auto Assign Public IP" attribute
 
 DOCUMENTATION = '''
-module: update_subnet_attribute
+module: ec2_vpc_subnet_auto_public_ip
 version_added: "1.0"
 short_description: Modify Auto-Assign Public IP
 description:

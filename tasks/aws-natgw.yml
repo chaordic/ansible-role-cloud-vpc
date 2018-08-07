@@ -7,6 +7,11 @@
 
 - debug: var=ret_natgw_net
 
+- name: "AWS | NAT GW check subnets"
+  fail:
+    msg: "AWS | NAT GW failed: no subnets named {{ item_vpc.nat_gw_subnet }}"
+  when: ret_natgw_net.subnets | length < 1
+
 - name: AWS | NAT GW Create
   ec2_vpc_nat_gateway:
     state: present

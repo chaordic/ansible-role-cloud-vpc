@@ -1,36 +1,27 @@
 ---
 - set_fact:
-    rtb_table: []
-
-- name: AWS | RT map IGW to it's ID
-  set_fact:
-    "{{ item.gateway_id }}": "{{ vpc_igw }}"
-  with_items: "{{ item_rtb.table }}"
-  when: item.gateway_id is defined and item.gateway_id == 'igw'
+    rtb_routes: []
+    rtb_subnets: []
 
 - name: AWS | RT map NATGW to it's ID
   set_fact:
-    "{{ item.gateway_id }}": "{{ vpc_natgw }}"
-  with_items: "{{ item_rtb.table }}"
+    rtb_routes: "{{ rtb_routes + [{'dest': item.dest, 'gateway_id': vpc_natgw }] }}"
   when: item.gateway_id is defined and item.gateway_id == 'natgw'
+  with_items: "{{ item_rtb.table }}"
 
-- name: "AWS | RT create {{ item_rtb.name }}"
-  ec2_vpc_route_table:
-    vpc_id: "{{ vpc_id }}"
-    region: "{{ item_vpc.region }}"
-    tags:
-      Name: "{{ item_rtb.name }}"
-    routes: "{{ item_rtb.table |d(omit)}}"
-    purge_routes: no
-  register: ret_rt
+- name: AWS | RT map IGW to it's ID
+  set_fact:
+    rtb_routes: "{{ rtb_routes + [{'dest': item.dest, 'gateway_id': vpc_igw }] }}"
+  when: item.gateway_id is defined and item.gateway_id == 'igw'
+  with_items: "{{ item_rtb.table }}"
 
-- ec2_vpc_route_table_facts:
-    filters:
-      vpc-id: "{{ vpc_id }}"
-  register: ret_rt_facts
-
-- set_fact:
-    rtb_subnets: []
+- name: AWS | RT map Peerings to it's ID
+  set_fact:
+    rtb_routes: "{{ rtb_routes + [{'dest': item.dest, 'gateway_id': vpc_peers|json_query(rt_query)| join(' ') }] }}"
+  vars:
+    rt_query: "[?name=='{{item.peering}}'].id"
+  when: item.peering is defined
+  with_items: "{{ item_rtb.table }}"
 
 - set_fact:
     rtb_subnets: "{{ rtbs |json_query(rt_query) }}"
@@ -39,14 +30,18 @@
   when: item.name == item_rtb.name
   with_items: "{{ rtbs }}"
 
-- name: "AWS | RTb associate subnets  {{ item_rtb.name }}"
+- set_fact:
+    rtb_subnets: "{{ rtb_subnets[0] }}"
+
+- name: "AWS | RTb associate subnets {{ item_rtb.name }}"
   ec2_vpc_route_table:
     lookup: tag
     tags:
       Name: "{{ item_rtb.name }}"
     vpc_id: "{{ vpc_id }}"
     region: "{{ item_vpc.region }}"
-    subnets: "{{ rtb_subnets[0] }}"
-    routes: "{{ item_rtb.table |d(omit)}}"
-    purge_routes: no
+    subnets: "{{ rtb_subnets }}"
+    routes: "{{ rtb_routes |d(omit)}}"
+    purge_routes: false
+    purge_subnets: false
   register: ret_rtb_subnets
