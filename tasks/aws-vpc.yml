@@ -30,6 +30,7 @@
   with_items: "{{ item_vpc.peers }}"
   loop_control:
     loop_var: item_peer
+  tags: peering
 
 - name: AWS | VPC Subnet
   include: aws-subnet.yml
@@ -37,6 +38,7 @@
   with_items: "{{ item_vpc.subnets }}"
   loop_control:
     loop_var: item_subnet
+  tags: subnets
 
 - name: AWS | VPC IGW
   include: aws-igw.yml
