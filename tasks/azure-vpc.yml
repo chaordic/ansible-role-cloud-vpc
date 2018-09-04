@@ -6,7 +6,7 @@
     tags: "{{ item.tags }}"
   with_items: "{{ azure_resource_groups }}"
 
-- name: AZURE | Security Grous create
+- name: AZURE | Security Groups create
   azure_rm_securitygroup:
     name: "{{ item.name }}"
     resource_group: "{{ item.resource_group }}"
