@@ -23,25 +23,42 @@
   when: item.peering is defined
   with_items: "{{ item_rtb.table }}"
 
-- set_fact:
+- name: AWS | RTb | mount the list of subnets
+  set_fact:
     rtb_subnets: "{{ rtbs |json_query(rt_query) }}"
   vars:
     rt_query: "[?name=='{{item.name}}'].subnets"
   when: item.name == item_rtb.name
   with_items: "{{ rtbs }}"
 
-- set_fact:
+- name: AWS | RTb | defined the list of subnets
+  set_fact:
     rtb_subnets: "{{ rtb_subnets[0] }}"
 
-- name: "AWS | RTb associate subnets {{ item_rtb.name }}"
-  ec2_vpc_route_table:
-    lookup: tag
-    tags:
-      Name: "{{ item_rtb.name }}"
-    vpc_id: "{{ vpc_id }}"
-    region: "{{ item_vpc.region }}"
-    subnets: "{{ rtb_subnets }}"
-    routes: "{{ rtb_routes |d(omit)}}"
-    purge_routes: false
-    purge_subnets: false
-  register: ret_rtb_subnets
+- name: AWS | RTb subnets associate
+  block:
+    - name: "AWS | RTb associate subnets {{ item_rtb.name }}"
+      ec2_vpc_route_table:
+        lookup: tag
+        tags:
+          Name: "{{ item_rtb.name }}"
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ item_vpc.region }}"
+        subnets: "{{ rtb_subnets }}"
+        routes: "{{ rtb_routes |d(omit)}}"
+        purge_routes: false
+        purge_subnets: false
+      register: ret_rtb_subnets
+    
+    - name: "AWS | RTb associate subnets' response"
+      debug:
+        var: ret_rtb_subnets
+
+  rescue:
+    - name: "AWS | RTb associate subnets' error handler"
+      debug:
+        msg: "Error When associating subnets to Route Table {{ item_rtb.name }}. Skip errors..."
+
+  always:
+    - debug:
+        msg: "Route Table Setup finished."

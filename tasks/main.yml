@@ -1,6 +1,3 @@
----
+--- # Setup Cloud Provider
 - block:
     - include: cloud.yml
-
-  # rescue:
-  # always:

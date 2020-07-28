@@ -1,0 +1,37 @@
+--- # https://docs.ansible.com/ansible/latest/modules/ec2_vpc_endpoint_module.html
+
+- debug: var=item_vpce
+
+- set_fact: 
+    route_table_ids: []
+  
+- name: "AWS | VPCe lookup table ids"
+  block:
+    - ec2_vpc_route_table_info:
+      register: ec2_vpc_tables
+
+    - debug: var=ec2_vpc_tables
+    
+    - name: AWS | VPCe lookup route tables and it's subnets
+      set_fact:
+        route_table_ids: "{{ route_table_ids + ec2_vpc_tables.route_tables |json_query(rt_query) }}"
+      vars:
+        rt_query: "[?tags.Name=='{{item}}'].id"
+      with_items: "{{ item_vpce.route_table_names }}"
+
+    - debug: var=route_table_ids
+  when: item_vpce.route_table_names | length > 0
+
+- name: "AWS | VPCe  Create endpoint service"
+  ec2_vpc_endpoint:
+    state: present
+    region: "{{ item_vpce.region }}"
+    vpc_id: "{{ vpc_id }}"
+    service: "com.amazonaws.{{ item_vpce.region }}.{{ item_vpce.service }}"
+    route_table_ids: "{{ route_table_ids }}"
+    policy: "{{ item_vpce.policy |d(omit) }}"
+  register: resp_vpc_endpoint
+  when:
+    - item_vpce.type == 'gateway'
+
+- debug: var=resp_vpc_endpoint

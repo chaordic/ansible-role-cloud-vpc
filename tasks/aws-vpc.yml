@@ -50,7 +50,9 @@
 
 - name: AWS | VPN
   include: aws-vpn.yml
-  when: item_vpc.vpn_connections
+  when: 
+    - (item_vpc.vpn_connections is defined)
+    - item_vpc.vpn_connections
 
 - name: AWS | VPC Routing
   include: aws-routing.yml
@@ -60,7 +62,7 @@
   when: item_vpc.endpoint_services  is defined
   with_items: "{{ item_vpc.endpoint_services }}"
   loop_control:
-    loop_var: item_epoint
+    loop_var: item_vpce
 
 - name: AWS | VPC Security Groups
   include: aws-sg.yml

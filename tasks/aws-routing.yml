@@ -1,4 +1,5 @@
 ---
+
 - name: AWS | RT lookup route tables and it's subnets
   set_fact:
     rtbs: "{{ rtbs + [{'name': item, 'subnets': vpc_subnets |json_query(rt_query)|unique }] }}"
@@ -11,7 +12,3 @@
   with_items: "{{ item_vpc.routes }}"
   loop_control:
     loop_var: item_rtb
-
-# Associate subnet to its rt
-# Associate to public rt an igw
-# Associate to private rt an nat_gw
