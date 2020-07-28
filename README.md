@@ -1,7 +1,7 @@
 cloud-vpc
 =========
 
-[![Project Status: Concept - initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
+[![Project Status: Concept - initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 
 Ansible role to manage all resources in Virtual Private Cloud Infrastructure.
 from service provider - now we are supporting AWS (please help us to improve =] ).
